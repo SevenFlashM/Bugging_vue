@@ -30,17 +30,15 @@ const user = {
       return new Promise((resolve, reject) => {
         //通过login，api发送请求到后端
         login(username, userInfo.password).then(response => {
-          //获取到后端的数据以及生成的token
-          const data = response.data
           //设置token保存在cookies中
-          setToken(data.token)
+          setToken(response.token)
           //执行mutations中的方法，将token保存在state中
-          commit('SET_TOKEN', data.token)
+          commit('SET_TOKEN', response.token)
+          commit('SET_ROLES', response.roles)
           //resolve函数的作用是，将Promise对象的状态从“未完成”变为“成功”
           resolve()
         }).catch(error => {
           reject(error)
-          console.log(error)
         })
       })
     },
@@ -49,9 +47,8 @@ const user = {
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getInfo(state.token).then(response => {
-          const data = response.data
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
+          if (response.roles && response.roles.length > 0) { // 验证返回的roles是否是一个非空数组
+            commit('SET_ROLES', response.roles)
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
@@ -67,7 +64,7 @@ const user = {
       return new Promise((resolve, reject) => {
         logout(state.token).then(() => {
           commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
+          // commit('SET_ROLES', [])
           removeToken()
           resolve()
         }).catch(error => {

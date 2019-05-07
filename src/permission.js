@@ -9,8 +9,9 @@ router.beforeEach((to, from, next) => {
   if (getToken()) {
     if (to.path === '/login') {
       next({ path: '/' })
-    } else {
-      if (store.getters.roles.length === 0) {
+    }
+    else {
+      if (!store.getters.roles) {
         store.dispatch('GetInfo').then(res => { // 拉取用户信息
           next()
         }).catch((err) => {
@@ -23,7 +24,8 @@ router.beforeEach((to, from, next) => {
         next()
       }
     }
-  } else {
+  }
+  else {
     if (whiteList.indexOf(to.path) !== -1) {
       next()
     } else {

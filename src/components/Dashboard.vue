@@ -35,7 +35,7 @@
         <el-row>
           <el-col style="text-align:right">
             <el-dropdown trigger="click">
-              <span class="userinfo-inner">{{name}}</span>
+              <span class="userinfo-inner">name</span>
               <i class="el-icon-caret-bottom" style="color:#FFF;margin-right:20px"></i>
               <el-dropdown-menu slot="dropdown">
                 <router-link class="inlineBlock" to="/">
@@ -79,7 +79,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["name"])
+    ...mapGetters(["roles"])
   },
   mounted: function() {}
 };
