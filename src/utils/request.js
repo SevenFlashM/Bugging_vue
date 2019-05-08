@@ -11,9 +11,9 @@ const service = axios.create({
 
 // request拦截器
 service.interceptors.request.use(
-  config => {
+  function (config) {
     if (store.getters.token) {
-      config.headers['Bugging'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
+      config.headers['Bugging'] = getToken() // 给request请求添加自定义的header属性
     }
     return config
   },
@@ -28,7 +28,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     /**
-     * code为非200是抛错 可结合自己业务进行修改
+     * code为非200是抛错
      */
     const res = response.data
     if (res.code !== 200) {

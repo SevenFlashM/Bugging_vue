@@ -9,7 +9,7 @@ const user = {
     // username: '',
     // password:'',
     // avatar: '',
-    roles: [],
+    roles: "",
   },
 
   mutations: {
@@ -46,7 +46,7 @@ const user = {
     // 获取用户信息
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getInfo(state.token).then(response => {
+        getInfo().then(response => {
           if (response.token) {
             commit('SET_TOKEN', response.token)
             commit('SET_ROLES', response.roles)
@@ -64,7 +64,7 @@ const user = {
     // 登出
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
+        logout().then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', '')
           removeToken()

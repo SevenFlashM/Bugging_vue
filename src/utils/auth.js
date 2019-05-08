@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie'
 
+//这里的tokenkey是指cookies中的key
 const TokenKey = 'Bugging_Token'
 
 export function getToken() {

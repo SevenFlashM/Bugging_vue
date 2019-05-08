@@ -113,7 +113,7 @@
       :page-sizes="[10, 20, 30, 40]"
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="tableData.length"
+      :total="tables.length"
     ></el-pagination>
 
     <!-- 编辑表格信息对话框 -->
@@ -217,12 +217,12 @@ export default {
           ? data.slice(offset, data.length)
           : data.slice(offset, offset + pageSize);
       return result;
+    },
+    formatter: function(row, column) {
+      return row.brief;
     }
   },
   methods: {
-    formatter: function(row, column) {
-      return row.brief;
-    },
     //清楚筛选条件
     clearFilter() {
       //清除ref值为filtertable的table中的过滤条件

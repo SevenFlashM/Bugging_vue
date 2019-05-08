@@ -16,8 +16,8 @@
       <!-- <el-form-item prop="verify" :rules="[{ required: true, message: '请输入验证码', trigger: 'blur' }]">
 				<el-input v-model="loginUser.verify" placeholder="请输入验证码"></el-input>
       </el-form-item>-->
-      <el-form-item>
-        <el-button type="primary" style="width:45%">重置</el-button>
+      <el-form-item class="button-class">
+        <el-button type="primary" style="width:45%" @click="reload">重置</el-button>
         <el-button
           type="primary"
           style="margin-left:20px;width:45%"
@@ -36,7 +36,7 @@
   margin-top: 70px;
   margin-left: -175px;
   width: 400px;
-  min-height: 350px;
+  min-height: 300px;
   padding: 0px 20px 20px;
   border-radius: 8px;
   box-sizing: border-box;
@@ -44,7 +44,9 @@
   box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.12), 0 0 50px rgba(0, 0, 0, 0.04);
   background-color: white;
 }
-
+.button-class{
+  padding-top:20px
+}
 .title {
   /* color: red; */
   text-align: center;
@@ -74,7 +76,7 @@ export default {
     };
     return {
       loginUser: {
-        username: "admin",
+        username: "007",
         password: "admin"
       },
       loginRules: {
@@ -109,6 +111,11 @@ export default {
           return false;
         }
       });
+    },
+    reload()
+    {
+      this.loginUser.username="admin";
+      this.loginUser.password="admin";
     }
   }
 };

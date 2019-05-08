@@ -11,11 +11,12 @@ export function login(username, password) {
   })
 }
 
-export function getInfo(token) {
+export function getInfo() {
   return request({
     url: '/users/info',
     method: 'get',
-    params: { token }
+    //`params` 是即将与请求一起发送的 URL 参数
+    // params: { token }
   })
 }
 
