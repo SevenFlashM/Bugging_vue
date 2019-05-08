@@ -47,10 +47,12 @@ const user = {
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getInfo(state.token).then(response => {
-          if (response.roles && response.roles.length > 0) { // 验证返回的roles是否是一个非空数组
+          if (response.token) {
+            commit('SET_TOKEN', response.token)
             commit('SET_ROLES', response.roles)
+            setToken(response.token)
           } else {
-            reject('getInfo: roles must be a non-null array !')
+            reject('token已失效，请重新登录')
           }
           resolve(response)
         }).catch(error => {
@@ -64,7 +66,7 @@ const user = {
       return new Promise((resolve, reject) => {
         logout(state.token).then(() => {
           commit('SET_TOKEN', '')
-          // commit('SET_ROLES', [])
+          commit('SET_ROLES', '')
           removeToken()
           resolve()
         }).catch(error => {
@@ -74,9 +76,10 @@ const user = {
     },
 
     // 前端 登出
-    FedLogOut({ commit }) {
+    ResetToken({ commit }) {
       return new Promise(resolve => {
         commit('SET_TOKEN', '')
+        commit('SET_ROLES', '')
         removeToken()
         resolve()
       })
