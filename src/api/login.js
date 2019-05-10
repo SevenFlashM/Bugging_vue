@@ -14,7 +14,7 @@ export function login(username, password) {
 export function getInfo() {
   return request({
     url: '/users/info',
-    method: 'get',
+    method: 'post',
     //`params` 是即将与请求一起发送的 URL 参数
     // params: { token }
   })

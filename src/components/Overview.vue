@@ -11,15 +11,15 @@
                 <dd>我创建的</dd>
               </dl>
               <dl>
-                <dt>{{follow}}</dt>
+                <dt>{{trace}}</dt>
                 <dd>我跟踪的</dd>
               </dl>
               <dl>
-                <dt>{{solve}}</dt>
+                <dt>{{handle}}</dt>
                 <dd>待解决的</dd>
               </dl>
               <dl>
-                <dt>{{tome}}</dt>
+                <dt>{{belongToMe}}</dt>
                 <dd>指派给我的</dd>
               </dl>
             </div>
@@ -106,19 +106,22 @@
 </style>
 
 <script>
-require("../../mock/pie");
+// require("../../mock/pie");
+import { mapGetters } from "vuex";
+import { initStatistic, initMyChart, initAllChart } from "@/api/overview";
 
-let myCircleData = [];
-let allCircleData = [];
+let myChartData = [];
+let allChartData = [];
 
 let data = () => {
   return {
-    create: 1,
-    follow: 2,
-    solve: 3,
-    tome: 4,
-    myCircleData,
-    allCircleData,
+    create: "",
+    trace: "",
+    handle: "",
+    belongToMe: "",
+    myChartData,
+    allChartData,
+    roles: ""
   };
 };
 
@@ -177,7 +180,8 @@ export default {
           {
             name: "与我相关",
             type: "pie",
-            radius: "70%",
+            radius: ['30%', '70%'],
+            center: ['50%', '50%'],
             data: tableData
           }
         ]
@@ -228,22 +232,55 @@ export default {
           {
             name: "所有缺陷",
             type: "pie",
-            radius: "70%",
+            radius: ['30%', '70%'],
+            center: ['50%', '50%'],
             data: tableData
           }
         ]
       });
     }
   },
+
+  computed: {
+    getRoles() {
+      return this.$store.getters["roles"];
+    }
+  },
   created: function() {},
   mounted: function() {
-    this.$axios.post("/overview/myCircle").then(res => {
-      this.myCircleData = res.data.array;
-      this.initCharOfMy(this.myCircleData);
+    // this.$axios.post("/overview/myCircle").then(res => {
+    //   this.myChartData = res.data.array;
+    //   this.initCharOfMy(this.myChartData);
+    // });
+    // this.$axios.post("/overview/allCircle").then(res => {
+    //   this.allChartData = res.data.array;
+    //   this.initCharOfAll(this.allChartData);
+    // });
+    initStatistic(this.getRoles, this.getRoles).then(response => {
+      for (var key in response.data) {
+        //key    data[key]
+        if (key == "我创建的") {
+          this.create = response.data[key];
+        }
+        if (key == "待我解决") {
+          this.handle = response.data[key];
+        }
+        if (key == "我追踪的") {
+          this.trace = response.data[key];
+        }
+        if (key == "指派给我的") {
+          this.belongToMe = response.data[key];
+        }
+      }
     });
-    this.$axios.post("/overview/allCircle").then(res => {
-      this.allCircleData = res.data.array;
-      this.initCharOfAll(this.allCircleData);
+    initMyChart(this.getRoles, this.getRoles).then(response => {
+      this.myChartData = response.data;
+      this.initCharOfMy(this.myChartData);
+    });
+    initAllChart(this.getRoles, this.getRoles).then(response => {
+      console.log(response.data)
+      this.allChartData = response.data;
+      this.initCharOfAll(this.allChartData);
     });
   }
 };

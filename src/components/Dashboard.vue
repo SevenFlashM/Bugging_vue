@@ -65,7 +65,7 @@ import { mapGetters } from "vuex";
 let data = () => {
   return {
     collapsed: false,
-    systemName: "Bugging"
+    systemName: "Bugging",
   };
 };
 
