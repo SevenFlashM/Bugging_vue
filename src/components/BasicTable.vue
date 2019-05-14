@@ -28,68 +28,95 @@
     >
       <!-- type为selection时选择多行数据时使用 Checkbox。 -->
       <el-table-column type="selection" width="55"></el-table-column>
+      <el-table-column prop="id" label="ID" v-if="true" width="55"></el-table-column>
+      <el-table-column
+        prop="type"
+        label="问题类型"
+        v-if="true"
+        width="120"
+        :filters="typeList"
+        :filter-method="filterHandler"
+      >
+        <template slot-scope="scope">
+          <el-dropdown trigger="click">
+            <el-tag>
+              {{scope.row.typeName}}
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </el-tag>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item
+                v-for="type in typeList"
+                :key="type.id"
+                @click.native="statusListChoose(scope,type.text)"
+              >{{type.text}}</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </template>
+      </el-table-column>
       <!-- 如果需要对当前数据进行筛选，需要写filters（筛选类别）以及filter-method属性（返回值） -->
       <el-table-column
         prop="status"
         label="问题状态"
         width="100"
-        :filters="statusDropdown"
+        :filters="statusList"
         :filter-method="filterHandler"
       >
         <template slot-scope="scope">
           <el-dropdown trigger="click">
             <el-tag>
-              {{scope.row.status}}
+              {{scope.row.statusName}}
               <i class="el-icon-arrow-down el-icon--right"></i>
             </el-tag>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item
-                v-for="status in statusDropdown"
-                :key="status.value"
-                @click.native="statusDropdownChoose(scope,status.text)"
+                v-for="status in statusList"
+                :key="status.id"
+                @click.native="statusListChoose(scope,status.text)"
               >{{status.text}}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
       </el-table-column>
-      <el-table-column prop="creater" label="创建人" width="100">
-        <template slot-scope="scope">
-          <div>
-            <el-tag size="medium">{{ scope.row.creater }}</el-tag>
-          </div>
-        </template>
-      </el-table-column>
-      <!-- 这里有个formatter，可以用来格式化选择最终返回值 ,接受一个函数后会或得两个参数row和column-->
-      <el-table-column prop="brief" label="问题描述" :formatter="formatter"></el-table-column>
       <el-table-column
         prop="priority"
         label="优先级"
-        :filters="priorityDropdown"
+        width="100"
+        :filters="priorityList"
         :filter-method="filterHandler"
       >
         <template slot-scope="scope">
           <el-dropdown trigger="click">
             <el-tag>
-              {{scope.row.priority}}
+              {{scope.row.priorityName}}
               <i class="el-icon-arrow-down el-icon--right"></i>
             </el-tag>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item
-                v-for="priorities in priorityDropdown"
-                :key="priorities.value"
-                @click.native="priorityDropdownChoose(scope,priorities.text)"
+                v-for="priorities in priorityList"
+                :key="priorities.id"
+                @click.native="priorityListChoose(scope,priorities.text)"
               >{{priorities.text}}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
       </el-table-column>
-      <el-table-column prop="belongto" label="指派关系"></el-table-column>
-      <el-table-column prop="date" label="日期" width="140" sortable>
+      <el-table-column prop="creator" label="创建人" width="100">
         <template slot-scope="scope">
-          <i class="el-icon-time"></i>
-          <span style="margin-left: 10px">{{ scope.row.date }}</span>
+          <div>
+            <el-tag size="medium">{{ scope.row.creator }}</el-tag>
+          </div>
         </template>
       </el-table-column>
+      <!-- 这里有个formatter，可以用来格式化选择最终返回值 ,接受一个函数后会或得两个参数row和column-->
+      <el-table-column prop="brief" label="问题描述" show-overflow-tooltip :formatter="formatter"></el-table-column>
+      <el-table-column prop="belongto" label="所属人"></el-table-column>
+      <el-table-column prop="createtime" label="创建日期" width="140" sortable>
+        <template slot-scope="scope">
+          <i class="el-icon-time"></i>
+          <span style="margin-left: 10px">{{ scope.row.createtime }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="updatetime" label="更新时间" v-if="true" width="55"></el-table-column>
       <el-table-column align="center">
         <template slot="header">
           <el-input size="mini" v-model="search" placeholder="输入关键字搜索"/>
@@ -122,26 +149,26 @@
         <el-form-item label="描述" :label-width="formLabelWidth">
           <el-input v-model="form.brief" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="指派关系" :label-width="formLabelWidth">
+        <el-form-item label="所属人" :label-width="formLabelWidth">
           <el-input v-model="form.belongto" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="日期" :label-width="formLabelWidth">
+        <el-form-item label="创建日期" :label-width="formLabelWidth">
           <el-input v-model="form.date" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="姓名" :label-width="formLabelWidth">
+        <el-form-item label="创建人" :label-width="formLabelWidth">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="问题状态" :label-width="formLabelWidth">
           <el-select v-model="form.status" :disabled="isDisable">
-            <el-option v-for="status in statusDropdown" :key="status.text" :value="status.value"></el-option>
+            <el-option v-for="status in statusList" :key="status.id" :value="status.text"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="优先级" :label-width="formLabelWidth">
           <el-select v-model="form.priority" :disabled="isDisable">
             <el-option
-              v-for="priorities in priorityDropdown"
-              :key="priorities.text"
-              :value="priorities.value"
+              v-for="priorities in priorityList"
+              :key="priorities.id"
+              :value="priorities.text"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -157,21 +184,7 @@
 <script>
 //从mock中获取模拟数据
 require("../../mock/table");
-
-let tableData = [];
-let statusDropdown = [
-  { text: "新建", value: "新建" },
-  { text: "处理中", value: "处理中" },
-  { text: "已拒绝", value: "已拒绝" },
-  { text: "已验收", value: "已验收" },
-  { text: "已解决", value: "已解决" }
-];
-let priorityDropdown = [
-  { text: "致命", value: "致命" },
-  { text: "严重", value: "严重" },
-  { text: "一般", value: "一般" },
-  { text: "轻微", value: "轻微" }
-];
+import * as api from "@/api/detail";
 
 let data = () => {
   return {
@@ -180,12 +193,15 @@ let data = () => {
     filters: {
       name: ""
     },
-    //问题状态数组
-    statusDropdown,
-    //优先级数组
-    priorityDropdown,
-    //表格数据
-    tableData,
+    //bug信息数据
+    tableData: [],
+    //bug状态信息
+    statusList: [],
+    //bug优先级信息
+    priorityList: [],
+    //bug类型信息
+    typeList: [],
+
     //编辑对话框默认不显示
     dialogFormVisible: false,
     //对话框中select是否可用
@@ -203,7 +219,9 @@ let data = () => {
     },
     formLabelWidth: "80px",
     pageNo: 1,
-    pageSize: 10
+    pageSize: 10,
+    //表列是否显示
+    columnShow: false
   };
 };
 export default {
@@ -217,11 +235,9 @@ export default {
           ? data.slice(offset, data.length)
           : data.slice(offset, offset + pageSize);
       return result;
-    },
-    formatter: function(row, column) {
-      return row.brief;
     }
   },
+
   methods: {
     //清楚筛选条件
     clearFilter() {
@@ -229,9 +245,9 @@ export default {
       this.$refs.filterTable.clearFilter();
     },
     //下拉框选择修改当前值
-    statusDropdownChoose: function(scope, text) {
-      if (scope.row.status != text) {
-        scope.row.status = text;
+    statusListChoose: function(scope, value) {
+      if (scope.row.statusID != value) {
+        scope.row.statusID = value;
         this.$message({
           showClose: true,
           message: "修改成功",
@@ -240,9 +256,9 @@ export default {
       }
       //这里可以直接写与数据库相关的修改操作了
     },
-    priorityDropdownChoose: function(scope, text) {
-      if (scope.row.priority != text) {
-        scope.row.priority = text;
+    priorityListChoose: function(scope, value) {
+      if (scope.row.priorityID != value) {
+        scope.row.priorityID = value;
         this.$message({
           showClose: true,
           message: "修改成功",
@@ -250,9 +266,21 @@ export default {
         });
       }
     },
-    filterHandler: function(value, row, column) {
+    //下拉框选择修改当前值
+    typeListChoose: function(scope, value) {
+      if (scope.row.typeID != value) {
+        scope.row.typeID = value;
+        this.$message({
+          showClose: true,
+          message: "修改成功",
+          type: "success"
+        });
+      }
+      //这里可以直接写与数据库相关的修改操作了
+    },
+    filterHandler: function(text, row, column) {
       const property = column["property"];
-      return row[property] === value;
+      return row[property] === text;
     },
     //编辑表格
     handleEdit: function(index, row) {
@@ -303,18 +331,67 @@ export default {
       this.isDisable = false;
     },
 
-    test(data) {
-      let search = this.search;
-      console.log(data);
-      return !search || data.name.toLowerCase().includes(search.toLowerCase());
+    formatter: function(row, column) {
+      return row.brief;
     }
   },
   created() {},
+
   mounted: function() {
     //使用axios的post请求
-    this.$axios.post("/Problem/All").then(res => {
-      this.tableData = res.data.array;
-    });
+    // this.$axios.post("/Problem/All").then(res => {
+    //   this.tableData = res.data.array;
+    // });
+    //获取表信息
+    api
+      .getDetailInfo()
+      .then(res => {
+        this.tableData = res.data;
+      })
+      .catch(error => {});
+
+    //获取bug状态信息
+    api
+      .getStatusInfo()
+      .then(res => {
+        res.data.forEach(item => {
+          this.statusList.push({
+            text: item.statusName,
+            value: item.statusName,
+            id: item.id
+          });
+        });
+          console.log(this.statusList)
+      })
+      .catch(error => {});
+
+    //获取bug类型信息
+    api
+      .getTypeInfo()
+      .then(res => {
+        res.data.forEach(item => {
+          this.typeList.push({
+            text: item.typeName,
+            value: item.typeName,
+            id: item.id
+          });
+        });
+      })
+      .catch(error => {});
+
+    //获取bug优先级信息
+    api
+      .getPriorityInfo()
+      .then(res => {
+        res.data.forEach(item => {
+          this.priorityList.push({
+            text: item.priorityName,
+            value: item.priorityName,
+            id: item.id
+          });
+        });
+      })
+      .catch(error => {});
   },
   computed: {
     // 模糊搜索
@@ -348,38 +425,38 @@ export default {
   },
   watch: {
     //监听路由变化
-    $route: function(to, from) {
-      if (this.$route.path == "/Problem/All") {
-        this.$axios.post("/Problem/All").then(res => {
-          this.tableData = res.data.array;
-        });
-      }
-      if (this.$route.path == "/Problem/ToSolve") {
-        this.$axios.post("/Problem/ToSolve").then(res => {
-          this.tableData = res.data.array;
-        });
-      }
-      if (this.$route.path == "/Problem/Mine") {
-        this.$axios.post("/Problem/Mine").then(res => {
-          this.tableData = res.data.array;
-        });
-      }
-      if (this.$route.path == "/Problem/Create") {
-        this.$axios.post("/Problem/Create").then(res => {
-          this.tableData = res.data.array;
-        });
-      }
-      if (this.$route.path == "/Problem/Distr") {
-        this.$axios.post("/Problem/Distr").then(res => {
-          this.tableData = res.data.array;
-        });
-      }
-      if (this.$route.path == "/Problem/Unsolve") {
-        this.$axios.post("/Problem/Unsolve").then(res => {
-          this.tableData = res.data.array;
-        });
-      }
-    }
+    // $route: function(to, from) {
+    //   if (this.$route.path == "/Problem/All") {
+    //     this.$axios.post("/Problem/All").then(res => {
+    //       this.tableData = res.data.array;
+    //     });
+    //   }
+    // if (this.$route.path == "/Problem/ToSolve") {
+    //   this.$axios.post("/Problem/ToSolve").then(res => {
+    //     this.tableData = res.data.array;
+    //   });
+    // }
+    // if (this.$route.path == "/Problem/Mine") {
+    //   this.$axios.post("/Problem/Mine").then(res => {
+    //     this.tableData = res.data.array;
+    //   });
+    // }
+    // if (this.$route.path == "/Problem/Create") {
+    //   this.$axios.post("/Problem/Create").then(res => {
+    //     this.tableData = res.data.array;
+    //   });
+    // }
+    // if (this.$route.path == "/Problem/Distr") {
+    //   this.$axios.post("/Problem/Distr").then(res => {
+    //     this.tableData = res.data.array;
+    //   });
+    // }
+    // if (this.$route.path == "/Problem/Unsolve") {
+    //   this.$axios.post("/Problem/Unsolve").then(res => {
+    //     this.tableData = res.data.array;
+    //   });
+    // }
+    // }
   }
 };
 </script>

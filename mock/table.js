@@ -15,8 +15,8 @@ Random.extend({
 
 export default Mock.mock('/Problem/All', 'post', {
     "array|15-30": [{
-        date: '@datetime("yyyy-MM-dd")',
-        creater: "@cname",
+        createTime: '@datetime("yyyy-MM-dd")',
+        creator: "@cname",
         brief: "@csentence(10, 25)",
         status: "@status",
         priority: "@priority",
@@ -26,8 +26,8 @@ export default Mock.mock('/Problem/All', 'post', {
 
 Mock.mock('/Problem/ToSolve', 'post', {
     "array|15-30": [{
-        date: '@datetime("yyyy-MM-dd")',
-        creater: "@cname",
+        createTime: '@datetime("yyyy-MM-dd")',
+        creator: "@cname",
         brief: "@csentence(10, 25)",
         status: "@status",
         priority: "@priority",
@@ -37,8 +37,8 @@ Mock.mock('/Problem/ToSolve', 'post', {
 
 Mock.mock('/Problem/Mine', 'post', {
     "array|15-30": [{
-        date: '@datetime("yyyy-MM-dd")',
-        creater: "@cname",
+        createTime: '@datetime("yyyy-MM-dd")',
+        creator: "@cname",
         brief: "@csentence(10, 25)",
         status: "@status",
         priority: "@priority",
@@ -48,8 +48,8 @@ Mock.mock('/Problem/Mine', 'post', {
 
 Mock.mock('/Problem/Create', 'post', {
     "array|15-30": [{
-        date: '@datetime("yyyy-MM-dd")',
-        creater: "@cname",
+        createTime: '@datetime("yyyy-MM-dd")',
+        creator: "@cname",
         brief: "@csentence(10, 25)",
         status: "@status",
         priority: "@priority",
@@ -59,8 +59,8 @@ Mock.mock('/Problem/Create', 'post', {
 
 Mock.mock('/Problem/Distr', 'post', {
     "array|15-30": [{
-        date: '@datetime("yyyy-MM-dd")',
-        creater: "@cname",
+        createTime: '@datetime("yyyy-MM-dd")',
+        creator: "@cname",
         brief: "@csentence(10, 25)",
         status: "@status",
         priority: "@priority",
@@ -70,8 +70,8 @@ Mock.mock('/Problem/Distr', 'post', {
 
 Mock.mock('/Problem/Unsolve', 'post', {
     "array|15-30": [{
-        date: '@datetime("yyyy-MM-dd")',
-        creater: "@cname",
+        createTime: '@datetime("yyyy-MM-dd")',
+        creator: "@cname",
         brief: "@csentence(10, 25)",
         status: "@status",
         priority: "@priority",

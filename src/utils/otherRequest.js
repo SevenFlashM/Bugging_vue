@@ -11,6 +11,7 @@ const service = axios.create({
 // request拦截器
 service.interceptors.request.use(
   function (config) {
+    //如果为post请求，那么就对数据进行格式化，如果不格式化，数据是以一个对象的形式来进行传递。
     if(config.method==='post')
     {
         config.data = qs.stringify(config.data);
