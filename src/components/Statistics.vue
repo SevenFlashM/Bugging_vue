@@ -16,7 +16,7 @@
 </template>
 
 <script>
-var echarts = require("echarts");
+import echarts from "echarts";
 
 export default {
   methods: {

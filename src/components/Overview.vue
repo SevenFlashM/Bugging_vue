@@ -16,7 +16,7 @@
               </dl>
               <dl>
                 <dt>{{handle}}</dt>
-                <dd>待解决的</dd>
+                <dd>处理中的</dd>
               </dl>
               <dl>
                 <dt>{{belongToMe}}</dt>
