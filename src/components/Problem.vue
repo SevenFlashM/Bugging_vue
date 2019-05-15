@@ -1,7 +1,7 @@
 <!-- 问题详情模板 -->
 <template id="problem-template">
   <el-container class="container">
-    <el-aside width="200px">
+    <el-aside width="150px">
       <el-menu router :default-active="this.$route.path" text-color="#929395">
         <el-menu-item index="/Problem/All">
           <template slot="title">
@@ -50,7 +50,7 @@ export default {
   }
   .el-menu {
     position: fixed;
-    width: 200px;
+    width: 150px;
     height: 100%;
   }
   .el-menu-item {

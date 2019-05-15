@@ -1,47 +1,60 @@
 import request from '@/utils/otherRequest'
+import axios from 'axios'
+import qs from 'qs'
 
 export function getDetailInfo() {
     return request({
         url: '/detail/info',
-        method: 'post'
+        method: 'get'
     })
 }
 
 export function getStatusInfo() {
     return request({
         url: '/detail/status',
-        method: 'post'
+        method: 'get'
     })
 }
 
 export function getPriorityInfo() {
     return request({
         url: '/detail/priority',
-        method: 'post'
+        method: 'get'
     })
 }
 export function getTypeInfo() {
     return request({
         url: '/detail/type',
-        method: 'post'
+        method: 'get'
     })
 }
 
-export function update() {
-    return request({
+export function update(detail) {
+    return axios({
         url: '/detail/update',
-        method: 'post'
+        method: 'put',
+        baseURL: process.env.BASE_API,
+        timeout: 5000,
+        data: detail
     })
 }
-export function insert() {
-    return request({
+export function insert(detail) {
+    return axios({
         url: '/detail/insert',
-        method: 'post'
+        method: 'post',
+        baseURL: process.env.BASE_API,
+        timeout: 5000,
+        data: detail
     })
 }
-export function remove () {
+export function remove(ID) {
     return request({
         url: '/detail/delete',
-        method: 'post'
+        method: 'delete',
+        params: { ID },
+        // transformRequest: function (ID) {
+        //     // 对 data 进行任意转换处理
+        //     return qs.stringify(ID);
+        // },
     })
 }
