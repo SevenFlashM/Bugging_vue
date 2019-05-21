@@ -8,23 +8,23 @@
             <i class="el-icon-message"></i>全部问题
           </template>
         </el-menu-item>
-        <el-menu-item index="/Problem/ToSolve">
+        <el-menu-item index="/Problem/Handling">
           <i class="el-icon-message"></i>
           <span slot="title">待我解决</span>
-        </el-menu-item>
-        <el-menu-item index="/Problem/Mine">
-          <i class="el-icon-message"></i>
-          <span slot="title">指派给我的</span>
         </el-menu-item>
         <el-menu-item index="/Problem/Create">
           <i class="el-icon-message"></i>
           <span slot="title">我创建的</span>
         </el-menu-item>
-        <el-menu-item index="/Problem/Distr">
+        <el-menu-item index="/Problem/Trace">
           <i class="el-icon-message"></i>
-          <span slot="title">我分配的</span>
+          <span slot="title">我跟踪的</span>
         </el-menu-item>
-        <el-menu-item index="/Problem/Unsolve">
+        <el-menu-item index="/Problem/BelongToMe">
+          <i class="el-icon-message"></i>
+          <span slot="title">指派给我的</span>
+        </el-menu-item>
+        <el-menu-item index="/Problem/UnClose">
           <i class="el-icon-message"></i>
           <span slot="title">未关闭的问题</span>
         </el-menu-item>

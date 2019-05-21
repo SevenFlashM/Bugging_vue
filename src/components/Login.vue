@@ -44,8 +44,8 @@
   box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.12), 0 0 50px rgba(0, 0, 0, 0.04);
   background-color: white;
 }
-.button-class{
-  padding-top:20px
+.button-class {
+  padding-top: 20px;
 }
 .title {
   /* color: red; */
@@ -83,7 +83,10 @@ export default {
         username: [
           { required: true, trigger: "blur", validator: validateUsername }
         ],
-        password: [{ required: true, trigger: "blur", validator: validatePass }]
+        password: [
+          { required: true, trigger: "blur", validator: validatePass },
+          { min: 5, max: 15, message: "长度在 5 到 15 个字符", trigger: "blur" }
+        ]
       },
       loading: false,
       pwdType: "password",
@@ -112,10 +115,9 @@ export default {
         }
       });
     },
-    reload()
-    {
-      this.loginUser.username="admin";
-      this.loginUser.password="admin";
+    reload() {
+      this.loginUser.username = "admin";
+      this.loginUser.password = "admin";
     }
   }
 };

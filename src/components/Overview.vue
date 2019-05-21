@@ -1,58 +1,74 @@
 <template id="overview-template">
-  <el-container class="container">
-    <el-main>
-      <el-row :gutter="10">
-        <el-col style="width:25%">
-          <div class="info-shadow" style="height: 380px;">
-            <p>与我相关的缺陷</p>
-            <div>
-              <dl>
-                <dt>{{create}}</dt>
-                <dd>我创建的</dd>
-              </dl>
-              <dl>
-                <dt>{{trace}}</dt>
-                <dd>我跟踪的</dd>
-              </dl>
-              <dl>
-                <dt>{{handle}}</dt>
-                <dd>处理中的</dd>
-              </dl>
-              <dl>
-                <dt>{{belongToMe}}</dt>
-                <dd>指派给我的</dd>
-              </dl>
+  <div>
+    <el-container class="container">
+      <el-main>
+        <el-row :gutter="10">
+          <el-col style="width:25%">
+            <div class="info-shadow" style="height: 380px;">
+              <p>与我相关的缺陷</p>
+              <div>
+                <dl>
+                  <dt>{{create}}</dt>
+                  <dd>我创建的</dd>
+                </dl>
+                <dl>
+                  <dt>{{trace}}</dt>
+                  <dd>我跟踪的</dd>
+                </dl>
+                <dl>
+                  <dt>{{handle}}</dt>
+                  <dd>处理中的</dd>
+                </dl>
+                <dl>
+                  <dt>{{belongToMe}}</dt>
+                  <dd>指派给我的</dd>
+                </dl>
+              </div>
             </div>
-          </div>
-        </el-col>
-        <el-col style="width:75%">
-          <div class="info-shadow" style="height: 380px;">
-            <p>任务分布</p>
-            <!-- <el-progress percentage="50" color="red" type="circle"></el-progress>
-            <el-progress percentage="50" color="blue" type="circle"></el-progress>
-            <el-progress percentage="50" color="yellow" type="circle"></el-progress>
-            <el-progress percentage="50" color="green" type="circle"></el-progress>-->
-            <el-row>
-              <el-col id="myCircle" style="height:310px;width:50%"></el-col>
-              <el-col id="allCircle" style="height:310px;width:50%"></el-col>
-            </el-row>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col style="width:25%">
-          <div class="info-shadow" style="height: 450px;">
-            <p>成员</p>
-          </div>
-        </el-col>
-        <el-col style="width:75%">
-          <div class="info-shadow" style="height: 450px;">
-            <p>历史记录</p>
-          </div>
-        </el-col>
-      </el-row>
-    </el-main>
-  </el-container>
+          </el-col>
+          <el-col style="width:75%">
+            <div class="info-shadow" style="height: 380px;">
+              <p>任务分布</p>
+              <el-row>
+                <el-col id="myCircle" style="height:310px;width:50%"></el-col>
+                <el-col id="allCircle" style="height:310px;width:50%"></el-col>
+              </el-row>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row :gutter="10">
+          <el-col style="width:25%">
+            <div class="info-shadow" style="height: 450px;">
+              <p>
+                <b>成员</b>
+                <i class="el-icon-plus" style="margin-left:75%;cursor:pointer;color:blue" @click="AddUser"></i>
+              </p>
+              <div>
+                <p v-for="user in this.userList" :key="user.id" style="color:#999;font-size:13px">{{user.username}}</p>
+              </div>
+            </div>
+          </el-col>
+          <el-col style="width:75%">
+            <div class="info-shadow" style="height: 450px;">
+              <p>历史记录</p>
+            </div>
+          </el-col>
+        </el-row>
+      </el-main>
+    </el-container>
+
+    <el-dialog title="添加用户" :visible.sync="dialogFormVisible" width="300px">
+      <el-form :model="addUserModel" :rules="addUserRules">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="addUserModel.username" autocomplete="off" style="width:250px"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="buttonConfirm">确 定</el-button>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -108,29 +124,65 @@
 <script>
 // require("../../mock/pie");
 import { mapGetters } from "vuex";
-import { initStatistic, initMyChart, initAllChart } from "@/api/overview";
-
-let myChartData = [];
-let allChartData = [];
-
-let data = () => {
-  return {
-    create: "",
-    trace: "",
-    handle: "",
-    belongToMe: "",
-    myChartData,
-    allChartData,
-    roles: ""
-  };
-};
+import {
+  initStatistic,
+  initMyChart,
+  initAllChart,
+  addUser,
+  getUser
+} from "@/api/overview";
 
 //获取echarts
 var echarts = require("echarts");
 
 export default {
-  data: data,
+  data() {
+    const validateUsername = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入正确的用户名"));
+      } else {
+        callback();
+      }
+    };
+    return {
+      create: "",
+      trace: "",
+      handle: "",
+      belongToMe: "",
+      myChartData: [],
+      allChartData: [],
+      roles: "",
+      dialogFormVisible: false,
+      addUserModel: {
+        username: ""
+      },
+      addUserRules: {
+        username: [
+          { required: true, trigger: "blur", validator: validateUsername }
+        ]
+      },
+      userList: ""
+    };
+  },
   methods: {
+    AddUser() {
+      this.dialogFormVisible = true;
+    },
+    buttonConfirm() {
+      addUser(this.addUserModel.username)
+        .then(res => {
+          if (res.data === true) {
+            this.$message({
+              type: "success",
+              message: "新增用户成功!"
+            });
+            this.dialogFormVisible = false;
+          }
+        })
+        .catch(error => {
+          this.$Message.error(error.message);
+        });
+    },
     //初始化我的任务饼状图
     initCharOfMy(tableData) {
       var myCircle = echarts.init(document.getElementById("myCircle"));
@@ -180,8 +232,8 @@ export default {
           {
             name: "与我相关",
             type: "pie",
-            radius: ['30%', '70%'],
-            center: ['50%', '50%'],
+            radius: ["30%", "70%"],
+            center: ["50%", "50%"],
             data: tableData
           }
         ]
@@ -232,8 +284,8 @@ export default {
           {
             name: "所有缺陷",
             type: "pie",
-            radius: ['30%', '70%'],
-            center: ['50%', '50%'],
+            radius: ["30%", "70%"],
+            center: ["50%", "50%"],
             data: tableData
           }
         ]
@@ -256,9 +308,12 @@ export default {
     //   this.allChartData = res.data.array;
     //   this.initCharOfAll(this.allChartData);
     // });
+    getUser().then(res => {
+      this.userList = res.data;
+    });
     initStatistic(this.getRoles, this.getRoles).then(response => {
       for (var key in response.data) {
-        //key    data[key]
+        //key    data[key] - map
         if (key == "我创建的") {
           this.create = response.data[key];
         }
@@ -278,7 +333,6 @@ export default {
       this.initCharOfMy(this.myChartData);
     });
     initAllChart(this.getRoles, this.getRoles).then(response => {
-      console.log(response.data)
       this.allChartData = response.data;
       this.initCharOfAll(this.allChartData);
     });
