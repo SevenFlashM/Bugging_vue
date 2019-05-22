@@ -41,10 +41,18 @@
             <div class="info-shadow" style="height: 450px;">
               <p>
                 <b>成员</b>
-                <i class="el-icon-plus" style="margin-left:75%;cursor:pointer;color:blue" @click="AddUser"></i>
+                <i
+                  class="el-icon-plus"
+                  style="margin-left:75%;cursor:pointer;color:blue"
+                  @click="AddUser"
+                ></i>
               </p>
               <div>
-                <p v-for="user in this.userList" :key="user.id" style="color:#999;font-size:13px">{{user.username}}</p>
+                <p
+                  v-for="user in this.userList"
+                  :key="user.id"
+                  style="color:#999;font-size:13px"
+                >{{user.username}}</p>
               </div>
             </div>
           </el-col>
@@ -58,7 +66,7 @@
     </el-container>
 
     <el-dialog title="添加用户" :visible.sync="dialogFormVisible" width="300px">
-      <el-form :model="addUserModel" :rules="addUserRules">
+      <el-form :model="addUserModel" :rules="addUserRules" ref="addUserForm">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="addUserModel.username" autocomplete="off" style="width:250px"></el-input>
         </el-form-item>
@@ -169,19 +177,26 @@ export default {
       this.dialogFormVisible = true;
     },
     buttonConfirm() {
-      addUser(this.addUserModel.username)
-        .then(res => {
-          if (res.data === true) {
-            this.$message({
-              type: "success",
-              message: "新增用户成功!"
+      this.$refs["addUserForm"].validate(valid => {
+        if (valid) {
+          addUser(this.addUserModel.username)
+            .then(res => {
+              if (res.data === true) {
+                this.$message({
+                  type: "success",
+                  message: "新增用户成功!"
+                });
+                this.dialogFormVisible = false;
+              }
+            })
+            .catch(error => {
+              this.$Message.error(error.message);
             });
-            this.dialogFormVisible = false;
-          }
-        })
-        .catch(error => {
-          this.$Message.error(error.message);
-        });
+          this.dialogFormVisible = false;
+        } else {
+          return false;
+        }
+      });
     },
     //初始化我的任务饼状图
     initCharOfMy(tableData) {

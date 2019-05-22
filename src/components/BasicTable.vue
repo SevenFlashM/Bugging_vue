@@ -430,7 +430,7 @@ export default {
                 if (res.data === true) {
                   this.$message({
                     type: "success",
-                    message: "新增成功!"
+                    message: "新增信息成功!"
                   });
                   this.refreshTable();
                 }
@@ -543,7 +543,7 @@ export default {
       //未关闭的(状态为！已验收和！已拒绝)Bug信息
       if (this.$route.path == api.unclose) {
         api
-          .getMyTraceInfo()
+          .getAllUnclosedInfo()
           .then(res => {
             this.tableData = res.data;
             this.loading = false;
