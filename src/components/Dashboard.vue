@@ -20,6 +20,10 @@
               <i class="el-icon-document"></i>
               <span slot="title">统计</span>
             </el-menu-item>
+            <el-menu-item index="/Project">
+              <i class="el-icon-document"></i>
+              <span slot="title">项目</span>
+            </el-menu-item>
             <el-menu-item index="/About">
               <i class="el-icon-info"></i>
               <span slot="title">关于</span>
@@ -65,7 +69,7 @@ import { mapGetters } from "vuex";
 let data = () => {
   return {
     collapsed: false,
-    systemName: "Bugging",
+    systemName: "Bugging"
   };
 };
 
@@ -76,7 +80,7 @@ export default {
       this.$store.dispatch("LogOut").then(() => {
         location.reload(); // 为了重新实例化vue-router对象 避免bug
       });
-    },
+    }
   },
   computed: {
     ...mapGetters(["roles"])

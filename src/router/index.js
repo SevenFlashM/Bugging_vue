@@ -7,6 +7,7 @@ import Overview from '@/components/Overview'
 import Problem from '@/components/Problem'
 import Statistics from '@/components/Statistics'
 import BasicTable from '@/components/BasicTable'
+import Project from '@/components/Project'
 import CreateTable from '@/components/Table/CreateTB'
 import DistrTable from '@/components/Table/DistrTB'
 import MineTable from '@/components/Table/MineTB'
@@ -57,12 +58,42 @@ export default new Router({
               name: 'All',
               component: BasicTable,
             },
+            {
+              path: 'Handling',
+              name: 'Handling',
+              component: BasicTable,
+            },
+            {
+              path: 'BelongToMe',
+              name: 'BelongToMe',
+              component: BasicTable,
+            },
+            {
+              path: 'Create',
+              name: 'Create',
+              component: BasicTable,
+            },
+            {
+              path: 'Trace',
+              name: 'Trace',
+              component: BasicTable,
+            },
+            {
+              path: 'UnClose',
+              name: 'UnClose',
+              component: BasicTable,
+            },
           ]
         },
         {
           path: '/Statistics',
           name: 'Statistics',
           component: Statistics
+        },
+        {
+          path: '/Project',
+          name: 'Project',
+          component: Project
         }
       ]
     },
