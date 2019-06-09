@@ -54,7 +54,7 @@ service.interceptors.response.use(
           })
         })
       }
-      return Promise.reject('当前用户已失效')
+      return Promise.reject(res.message)
     } else {
       return response.data
     }

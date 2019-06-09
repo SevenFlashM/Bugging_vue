@@ -57,8 +57,34 @@
             </div>
           </el-col>
           <el-col style="width:75%">
-            <div class="info-shadow" style="height: 450px;">
-              <p>历史记录</p>
+            <div
+              class="info-shadow"
+              style="height:450px;overflow-y:scroll;overflow-x:hidden;margin-top:15px"
+            >
+              <p style="padding-top:0px">历史记录</p>
+              <div>
+                <ul>
+                  <el-row
+                    :gutter="50"
+                    v-for="history in this.historyList"
+                    :key="history.id"
+                    style="padding-top:5px"
+                  >
+                    <el-col :span="4">
+                      <span class="col">Bug #{{numFormatter(history.num)}}</span>
+                    </el-col>
+                    <el-col :span="4">
+                      <span class="col1">{{history.updater}}</span>
+                    </el-col>
+                    <el-col :span="10">
+                      <span class="col2">{{history.remark}}</span>
+                    </el-col>
+                    <el-col :span="6">
+                      <span class="col3">{{timeFormatter(history.updatetime)}}</span>
+                    </el-col>
+                  </el-row>
+                </ul>
+              </div>
             </div>
           </el-col>
         </el-row>
@@ -92,6 +118,22 @@
   .info-shadow {
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     background: #ffffff;
+  }
+  .col {
+    font-size: 12px;
+    color: #999;
+  }
+  .col1 {
+    font-size: 12px;
+  }
+  .col2 {
+    font-size: 12px;
+    color: blue;
+    text-align: left;
+  }
+  .col3 {
+    color: #999;
+    font-size: 12px;
   }
   p {
     width: 100%;
@@ -132,13 +174,7 @@
 <script>
 // require("../../mock/pie");
 import { mapGetters } from "vuex";
-import {
-  initStatistic,
-  initMyChart,
-  initAllChart,
-  addUser,
-  getUser
-} from "@/api/overview";
+import * as api from "@/api/overview";
 
 //获取echarts
 var echarts = require("echarts");
@@ -169,17 +205,21 @@ export default {
           { required: true, trigger: "blur", validator: validateUsername }
         ]
       },
-      userList: ""
+      //接受用户列表
+      userList: "",
+      historyList: ""
     };
   },
   methods: {
     AddUser() {
       this.dialogFormVisible = true;
+      console.log(this.getProjectID);
     },
     buttonConfirm() {
       this.$refs["addUserForm"].validate(valid => {
         if (valid) {
-          addUser(this.addUserModel.username)
+          api
+            .addUser(this.addUserModel.username)
             .then(res => {
               if (res.data === true) {
                 this.$message({
@@ -197,6 +237,38 @@ export default {
           return false;
         }
       });
+    },
+    timeFormatter(inputTime) {
+      if ((inputTime != null) & (inputTime != "")) {
+        //前后端的时间类型不同，所以需要先转换一下。
+        var time = new Date(inputTime);
+        var times =
+          time.getFullYear() +
+          "年" +
+          (time.getMonth() + 1 < 10
+            ? "0" + (time.getMonth() + 1)
+            : time.getMonth() + 1) +
+          "月" +
+          (time.getDate() < 10 ? "0" + time.getDate() : time.getDate()) +
+          "日 " +
+          time.getHours() +
+          ":" +
+          (time.getMinutes() < 10
+            ? "0" + time.getMinutes()
+            : time.getMinutes()) +
+          ":" +
+          (time.getSeconds() < 10
+            ? "0" + time.getSeconds()
+            : time.getSeconds()) +
+          "";
+      }
+      return times;
+    },
+    //用来得出特定的Bug信息ID样式
+    numFormatter(num) {
+      var result =
+        parseInt(num) < 10 ? "00" + num : parseInt(num) < 100 ? "0" + num : num;
+      return result;
     },
     //初始化我的任务饼状图
     initCharOfMy(tableData) {
@@ -311,46 +383,64 @@ export default {
   computed: {
     getRoles() {
       return this.$store.getters["roles"];
+    },
+    getProjectID() {
+      return this.$store.getters["project"];
     }
   },
   created: function() {},
   mounted: function() {
-    // this.$axios.post("/overview/myCircle").then(res => {
-    //   this.myChartData = res.data.array;
-    //   this.initCharOfMy(this.myChartData);
-    // });
-    // this.$axios.post("/overview/allCircle").then(res => {
-    //   this.allChartData = res.data.array;
-    //   this.initCharOfAll(this.allChartData);
-    // });
-    getUser().then(res => {
-      this.userList = res.data;
-    });
-    initStatistic(this.getRoles, this.getRoles).then(response => {
-      for (var key in response.data) {
+    //获取用户列表
+    api
+      .getUser()
+      .then(res => {
+        this.userList = res.data;
+      })
+      .catch(error => {
+        this.$Message.error(error.message);
+      });
+    //获取历史列表
+    api
+      .getHistory()
+      .then(res => {
+        this.historyList = res.data;
+      })
+      .catch(error => {
+        this.$Message.error(error.message);
+      });
+    //初始化数据
+    api
+      .initStatistic(this.getRoles, this.getRoles)
+      .then(response => {
         //key    data[key] - map
-        if (key == "我创建的") {
-          this.create = response.data[key];
-        }
-        if (key == "待我解决") {
-          this.handle = response.data[key];
-        }
-        if (key == "我追踪的") {
-          this.trace = response.data[key];
-        }
-        if (key == "指派给我的") {
-          this.belongToMe = response.data[key];
-        }
-      }
-    });
-    initMyChart(this.getRoles, this.getRoles).then(response => {
-      this.myChartData = response.data;
-      this.initCharOfMy(this.myChartData);
-    });
-    initAllChart(this.getRoles, this.getRoles).then(response => {
-      this.allChartData = response.data;
-      this.initCharOfAll(this.allChartData);
-    });
+        this.create = response.data["我创建的"];
+        this.handle = response.data["待我解决"];
+        this.trace = response.data["我追踪的"];
+        this.belongToMe = response.data["指派给我的"];
+      })
+      .catch(error => {
+        this.$Message.error(error.message);
+      });
+    //初始化“关于我的”图表
+    api
+      .initMyChart(this.getRoles, this.getRoles)
+      .then(response => {
+        this.myChartData = response.data;
+        this.initCharOfMy(this.myChartData);
+      })
+      .catch(error => {
+        this.$Message.error(error.message);
+      });
+    //初始化“所有”图表
+    api
+      .initAllChart(this.getRoles, this.getRoles)
+      .then(response => {
+        this.allChartData = response.data;
+        this.initCharOfAll(this.allChartData);
+      })
+      .catch(error => {
+        this.$Message.error(error.message);
+      });
   }
 };
 </script>

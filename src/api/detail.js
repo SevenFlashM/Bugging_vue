@@ -43,11 +43,11 @@ export function getBelongtoMeInfo(belongto) {
     })
 }
 //我跟踪的
-export function getMyTraceInfo(creator,belongto) {
+export function getMyTraceInfo(creator, belongto) {
     return request({
         url: '/detail/trace',
         method: 'post',
-        data: { creator,belongto },
+        data: { creator, belongto },
     })
 }
 
@@ -84,7 +84,7 @@ export function update(detail) {
         method: 'put',
         baseURL: process.env.BASE_API,
         timeout: 5000,
-        data: detail
+        data:detail
     })
 }
 export function insert(detail) {
@@ -96,11 +96,11 @@ export function insert(detail) {
         data: detail
     })
 }
-export function remove(ID) {
+export function remove(detail) {
     return request({
         url: '/detail/delete',
         method: 'delete',
-        params: { ID },
+        data: detail,
         // transformRequest: function (ID) {
         //     // 对 data 进行任意转换处理
         //     return qs.stringify(ID);

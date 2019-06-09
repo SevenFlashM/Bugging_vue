@@ -37,7 +37,7 @@ export default new Router({
       children: [
         {
           path: 'Dashboard',
-          redirect: '/Overview',
+          redirect: '/Project',
         },
         {
           path: '/Overview',

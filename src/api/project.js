@@ -6,3 +6,11 @@ export function getInfo() {
         method: "get"
     });
 }
+
+export function getProjectIDByName(projectName) {
+    return request({
+        url: "/project/getProjectIDByName",
+        method: "get",
+        params:{projectName},
+    });
+}

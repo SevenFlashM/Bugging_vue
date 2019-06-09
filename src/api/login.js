@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import qs from 'qs'
 
 export function login(username, password) {
   return request({
@@ -24,5 +25,20 @@ export function logout() {
   return request({
     url: '/users/logout',
     method: 'post'
+  })
+}
+
+export function modify(username, old, newPass) {
+  return request({
+    url: '/users/modify',
+    method: 'post',
+    data: {
+      username,
+      old,
+      newPass
+    },
+    transformRequest: [function (data) {
+      return qs.stringify(data);
+    }],
   })
 }

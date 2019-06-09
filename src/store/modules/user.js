@@ -10,6 +10,7 @@ const user = {
     // password:'',
     // avatar: '',
     roles: "",
+    project:"",
   },
 
   mutations: {
@@ -18,6 +19,9 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_PROJECT: (state, project) => {
+      state.project = project
     }
   },
 

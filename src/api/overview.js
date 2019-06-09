@@ -53,11 +53,11 @@ export function getUser() {
 }
 
 
-// //获取历史记录接口
-// export function getHistory()
-// {
-//     return request({
-//         url: '/overview/gethistoty',
-//         method: 'get',
-//     })
-// }
+//获取历史记录接口
+export function getHistory()
+{
+    return request({
+        url: '/overview/history',
+        method: 'get',
+    })
+}

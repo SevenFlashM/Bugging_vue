@@ -12,9 +12,9 @@
         <el-form-item>
           <el-input v-model="search" placeholder="输入任意查询内容"/>
         </el-form-item>
-        <el-form-item>
+        <!-- <el-form-item>
           <el-button type="primary" icon="el-icon-search" @click="buttonQuery">查询</el-button>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item>
           <el-button type="primary" icon="el-icon-plus" @click="buttonAdd">添加</el-button>
         </el-form-item>
@@ -23,18 +23,22 @@
     <el-table
       ref="filterTable"
       :data="tables | pagination(pageNo,pageSize)"
-      :default-sort="{prop: 'date', order: 'descending'}"
+      :default-sort="{prop:'createtime', order: 'descending'}"
       v-loading="loading"
       highlight-current-row
     >
       <!-- type为selection时选择多行数据时使用 Checkbox。 -->
-      <el-table-column type="selection" width="55"></el-table-column>
-      <el-table-column prop="id" label="ID" v-if="false" width="55"></el-table-column>
+      <el-table-column type="selection" width="40"></el-table-column>
+      <el-table-column prop="num" label="ID" width="40">
+        <template slot-scope="scope">
+          <span style="font-size:11px">{{numFormatter(scope.row.num)}}</span>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="typeName"
         label="问题类型"
         v-if="true"
-        width="110"
+        width="105"
         :filters="typeList"
         :filter-method="filterHandler"
       >
@@ -58,7 +62,7 @@
       <el-table-column
         prop="statusName"
         label="问题状态"
-        width="100"
+        width="90"
         :filters="statusList"
         :filter-method="filterHandler"
       >
@@ -108,7 +112,23 @@
           </div>
         </template>-->
       </el-table-column>
-      <el-table-column prop="belongto" label="所属人" width="100"></el-table-column>
+      <el-table-column prop="belongto" label="所属人" width="100">
+        <template slot-scope="scope">
+          <el-dropdown trigger="click">
+            <el-tag size="mini">
+              {{scope.row.belongto}}
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </el-tag>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item
+                v-for="user in userList"
+                :key="user.id"
+                @click.native="userListChoose(scope,user.value)"
+              >{{user.value}}</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </template>
+      </el-table-column>
       <!-- 这里有个formatter，可以用来格式化选择最终返回值 ,接受一个函数后会或得两个参数row和column-->
       <el-table-column
         prop="brief"
@@ -122,7 +142,7 @@
           <i class="el-icon-time"></i>
           <el-tooltip placement="top">
             <div slot="content">{{getDetailTimeForToolTip(scope.row.createtime)}}</div>
-            <span style="margin-left: 10px">{{ timeFormatter(scope.row.createtime) }}</span>
+            <span>{{ timeFormatter(scope.row.createtime) }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -130,8 +150,11 @@
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
           <el-tooltip placement="top">
-            <div slot="content">{{getDetailTimeForToolTip(scope.row.updatetime)}}</div>
-            <span style="margin-left: 10px">{{ timeFormatter(scope.row.updatetime) }}</span>
+            <div
+              slot="content"
+              style="font-size:12px"
+            >{{getDetailTimeForToolTip(scope.row.updatetime)}}</div>
+            <span>{{ timeFormatter(scope.row.updatetime) }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -162,7 +185,7 @@
     ></el-pagination>
 
     <!-- 编辑表格信息对话框 -->
-    <el-dialog title="问题详情" :visible.sync="dialogFormVisible" width="40%">
+    <el-dialog :title="title" :visible.sync="dialogFormVisible" width="40%">
       <el-form
         :model="form"
         :label-position="labelPosition"
@@ -171,7 +194,7 @@
         ref="form"
         inline-message
       >
-        <el-form-item label="ID" :label-width="formLabelWidth" v-show="false">
+        <el-form-item label="ID" v-show="false">
           <el-input v-model="form.id" autocomplete="off" readonly></el-input>
         </el-form-item>
         <el-form-item label="创建人">
@@ -179,9 +202,14 @@
             <el-input v-model="form.creator" autocomplete="off" disabled></el-input>
           </el-col>
         </el-form-item>
-        <el-form-item label="所属人">
+        <el-form-item label="所属人" prop="belongto">
+          <el-select v-model="form.belongto" :disabled="isDisable">
+            <el-option v-for="user in userList" :key="user.id" :value="user.value"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="上次更新人" v-show="false">
           <el-col :span="15">
-            <el-input v-model="form.belongto" autocomplete="off"></el-input>
+            <el-input v-model="form.updater" autocomplete="off"></el-input>
           </el-col>
         </el-form-item>
         <el-form-item label="创建日期" v-show="false">
@@ -230,6 +258,7 @@
 <script>
 //从mock中获取模拟数据
 import * as api from "@/api/detail";
+import { getUser } from "@/api/overview";
 
 export default {
   data() {
@@ -259,27 +288,33 @@ export default {
       dialogFormVisible: false,
       //对话框中select是否可用
       isDisable: true,
+      //dialig标题
+      title: "",
       //编辑对话框默中排列位置
       labelPosition: "left",
       //编辑当前行数据的对话框
       form: {
         id: "",
+        num: "",
         brief: "",
         creator: "",
         belongto: "",
+        updater: "",
         typeName: "",
         statusName: "",
         priorityName: "",
         statusID: "",
         typeID: "",
         priorityID: "",
-        createtime: ""
+        createtime: "",
+        remark: ""
       },
       formLabelWidth: "80px",
       pageNo: 1,
       pageSize: 10,
       dialogModel: {},
       dialogRules: {
+        belongto: [{ required: true, trigger: "change", validator: validate }],
         statusName: [
           { required: true, trigger: "change", validator: validate }
         ],
@@ -288,7 +323,8 @@ export default {
           { required: true, trigger: "change", validator: validate }
         ],
         brief: [{ required: true, trigger: "blur", validator: validate }]
-      }
+      },
+      userList: []
     };
   },
 
@@ -314,24 +350,46 @@ export default {
     statusListChoose: function(scope, value) {
       if (scope.row.statusName != value) {
         this.form = scope.row;
+        let before = this.form.statusName;
+        let after = "";
         for (let i = 0; i < this.statusList.length; i++) {
           if (this.statusList[i].value === value) {
             //修改状态id
             this.form.statusID = this.statusList[i].id;
+            after = this.statusList[i].value;
           }
         }
+        let remark =
+          "将Bug状态从 " + '"' + before + '"' + " 修改为 " + '"' + after + '"';
+        //赋值更新人
+        this.form.updater = this.getRoles;
+        this.form.remark = remark;
         this.updateTable(this.form);
       }
     },
     priorityListChoose: function(scope, value) {
       if (scope.row.priorityName != value) {
         this.form = scope.row;
+        let before = this.form.priorityName;
+        let after = "";
         for (let i = 0; i < this.priorityList.length; i++) {
           if (this.priorityList[i].value === value) {
             //修改状态id
             this.form.priorityID = this.priorityList[i].id;
+            after = this.priorityList[i].value;
           }
         }
+        let remark =
+          "将Bug优先级从 " +
+          '"' +
+          before +
+          '"' +
+          " 修改为 " +
+          '"' +
+          after +
+          '"';
+        this.form.updater = this.getRoles;
+        this.form.remark = remark;
         this.updateTable(this.form);
       }
     },
@@ -339,15 +397,42 @@ export default {
     typeListChoose: function(scope, value) {
       if (scope.row.typeName != value) {
         this.form = scope.row;
+        let after = "";
+        let before = this.form.typeName;
         for (let i = 0; i < this.typeList.length; i++) {
           if (this.typeList[i].value === value) {
             //修改状态id
             this.form.typeID = this.typeList[i].id;
+            after = this.typeList[i].value;
           }
         }
+        let remark =
+          "将Bug类型从 " + '"' + before + '"' + " 修改为 " + '"' + after + '"';
+        this.form.updater = this.getRoles;
+        this.form.remark = remark;
         this.updateTable(this.form);
       }
-      //这里可以直接写与数据库相关的修改操作了
+    },
+    userListChoose: function(scope, value) {
+      if (scope.row.belongto != value) {
+        this.form = scope.row;
+        let before = this.form.belongto;
+        let after = "";
+        this.form.belongto = value;
+        after = value;
+        let remark =
+          "将任务所属人从 " +
+          '"' +
+          before +
+          '"' +
+          " 修改为 " +
+          '"' +
+          after +
+          '"';
+        this.form.updater = this.getRoles;
+        this.form.remark = remark;
+        this.updateTable(this.form);
+      }
     },
     filterHandler: function(value, row, column) {
       const property = column["property"];
@@ -357,6 +442,7 @@ export default {
     handleEdit: function(index, row) {
       this.dialogFormVisible = true;
       this.isDisable = true;
+      this.title = "编辑记录";
       // this.form = Object.assign({}, row);
       //直接将row值对应赋值给form对应
       this.form = row;
@@ -370,16 +456,21 @@ export default {
         type: "warning"
       })
         .then(() => {
+          row.updater = this.getRoles;
+          row.remark = "删除了一条记录";
           //数据库删除
           api
-            .remove(row.id)
+            .remove(row)
             .then(res => {
               if (res.data === true) {
                 this.refreshTable();
               }
             })
             .catch(error => {
-              this.$Message.error(error.message);
+              this.$message({
+                type: "warning",
+                message: error
+              });
             });
           this.$message({
             type: "success",
@@ -410,6 +501,7 @@ export default {
     buttonAdd() {
       this.dialogFormVisible = true;
       this.isDisable = false;
+      this.title = "新增记录";
       //对dialog中的form重新赋值
       for (var element in this.form) {
         this.form[element] = "";
@@ -420,10 +512,13 @@ export default {
     buttonConfirm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          this.form.updater = this.getRoles;
           //如果id不为空，则说明当前数据存在，则进行修改，为空则新增
           if ((this.form.id != "") & (this.form.id != null)) {
+            this.form.remark = "修改了描述";
             this.updateTable(this.form);
           } else {
+            this.form.remark = "新增了一条记录";
             api
               .insert(this.form)
               .then(res => {
@@ -436,7 +531,10 @@ export default {
                 }
               })
               .catch(error => {
-                this.$Message.error(error.message);
+                this.$message({
+                  type: "warning",
+                  message: error
+                });
               });
           }
           this.dialogFormVisible = false;
@@ -466,13 +564,19 @@ export default {
       }
       return times;
     },
+    //将Bug信息的ID计数返回特定样式
+    numFormatter(num) {
+      var result =
+        parseInt(num) < 10 ? "00" + num : parseInt(num) < 100 ? "0" + num : num;
+      return result;
+    },
     //获取详细时间->时分秒来给Tooltip显示
     getDetailTimeForToolTip(inputTime) {
       var time = new Date(inputTime);
       var resultTime =
         time.getHours() +
         "时" +
-        time.getMinutes() +
+        (time.getMinutes() < 10 ? "0" + time.getMinutes() : time.getMinutes()) +
         "分" +
         (time.getSeconds() < 10 ? "0" + time.getSeconds() : time.getSeconds()) +
         "秒";
@@ -489,7 +593,10 @@ export default {
             this.loading = false;
           })
           .catch(error => {
-            this.$Message.error(error.message);
+            this.$message({
+              type: "warning",
+              message: error
+            });
           });
       }
       //待我解决的Bug信息
@@ -501,7 +608,10 @@ export default {
             this.loading = false;
           })
           .catch(error => {
-            this.$Message.error(error.message);
+            this.$message({
+              type: "warning",
+              message: error
+            });
           });
       }
       //我创建的Bug信息
@@ -513,7 +623,10 @@ export default {
             this.loading = false;
           })
           .catch(error => {
-            this.$Message.error(error.message);
+            this.$message({
+              type: "warning",
+              message: error
+            });
           });
       }
       //属于我的Bug信息
@@ -525,7 +638,10 @@ export default {
             this.loading = false;
           })
           .catch(error => {
-            this.$Message.error(error.message);
+            this.$message({
+              type: "warning",
+              message: error
+            });
           });
       }
       //我追踪的Bug信息
@@ -537,7 +653,10 @@ export default {
             this.loading = false;
           })
           .catch(error => {
-            this.$Message.error(error.message);
+            this.$message({
+              type: "warning",
+              message: error
+            });
           });
       }
       //未关闭的(状态为！已验收和！已拒绝)Bug信息
@@ -549,7 +668,10 @@ export default {
             this.loading = false;
           })
           .catch(error => {
-            this.$Message.error(error.message);
+            this.$message({
+              type: "warning",
+              message: error
+            });
           });
       }
     },
@@ -567,7 +689,10 @@ export default {
           }
         })
         .catch(error => {
-          this.$message.error(error.message);
+          this.$message({
+            type: "warning",
+            message: error
+          });
         });
     }
   },
@@ -607,7 +732,10 @@ export default {
         });
       })
       .catch(error => {
-        this.$Message.error(error.message);
+        this.$message({
+          type: "warning",
+          message: error
+        });
       });
 
     //获取bug优先级信息
@@ -623,7 +751,29 @@ export default {
         });
       })
       .catch(error => {
-        this.$Message.error(error.message);
+        this.$message({
+          type: "warning",
+          message: error
+        });
+      });
+    getUser()
+      .then(res => {
+        this.userList.push({
+          value: "无",
+          id: "0"
+        });
+        res.data.forEach(item => {
+          this.userList.push({
+            value: item.username,
+            id: item.id
+          });
+        });
+      })
+      .catch(error => {
+        this.$message({
+          type: "warning",
+          message: error
+        });
       });
   },
   computed: {

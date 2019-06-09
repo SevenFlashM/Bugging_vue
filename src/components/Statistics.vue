@@ -9,14 +9,15 @@
     <div style="position: relative;margin-top: 20px;">
       <div id="problemPriorityChart" class="chart"></div>
     </div>
-    <div style="position: relative;margin-top: 20px;">
+    <!-- <div style="position: relative;margin-top: 20px;">
       <div id="problemStatusChart" class="chart"></div>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
 import echarts from "echarts";
+import * as api from "@/api/statistics";
 
 export default {
   methods: {
@@ -25,8 +26,8 @@ export default {
       var echart_etl_stat = echarts.init(
         document.getElementById("problemStatusChart")
       );
-      // 设置option
-      var echart_etl_stat_option = {
+      // 设置option setOption
+      echart_etl_stat.setOption({
         title: {
           top: "1%",
           left: "1%",
@@ -40,7 +41,7 @@ export default {
           trigger: "axis"
         },
         legend: {
-          data: ["新建", "已解决", "处理中", "已验收","已拒绝","延期"]
+          data: ["新建", "已解决", "处理中", "已验收", "已拒绝", "延期"]
         },
         grid: {
           left: "3%",
@@ -63,20 +64,7 @@ export default {
         xAxis: {
           type: "category",
           boundaryGap: false,
-          data: [
-            "一月",
-            "二月",
-            "三月",
-            "四月",
-            "五月",
-            "六月",
-            "七月",
-            "八月",
-            "九月",
-            "十月",
-            "十一月",
-            "十二月"
-          ]
+          data: this.monthList
         },
         yAxis: {
           type: "value"
@@ -84,38 +72,36 @@ export default {
         series: [
           {
             name: "新建",
-            type: "line",
-            data: [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            type: "bar",
+            data: this.status.createList
           },
           {
             name: "已解决",
-            type: "line",
-            data: [0, 0, 3, 1, 0, 0, 0, 5, 0, 0, 0, 0]
+            type: "bar",
+            data: this.status.solvedList
           },
           {
             name: "处理中",
-            type: "line",
-            data: [0, 1, 2, 0, 3, 0, 2, 0, 0, 4, 0, 0]
+            type: "bar",
+            data: this.status.handlingList
           },
           {
             name: "已验收",
-            type: "line",
-            data: [0, 0, 5, 0, 0, 5, 0, 0, 6, 0, 4, 0]
+            type: "bar",
+            data: this.status.checkList
           },
-           {
+          {
             name: "已拒绝",
-            type: "line",
-            data: [0, 1, 2, 0, 3, 0, 2, 2, 0, 4, 4, 0]
+            type: "bar",
+            data: this.status.refuseList
           },
-           {
+          {
             name: "延期",
-            type: "line",
-            data: [0, 1, 2, 0, 4, 0, 2, 0, 0, 4, 7, 0]
-          },
+            type: "bar",
+            data: this.status.delayList
+          }
         ]
-      };
-      // 绘制图表
-      echart_etl_stat.setOption(echart_etl_stat_option);
+      });
     },
     init_type_echarts() {
       // 基于准备好的dom，初始化echarts实例
@@ -123,7 +109,7 @@ export default {
         document.getElementById("problemTypeChart")
       );
       // 设置option
-      var echart_etl_stat_option = {
+      echart_etl_stat.setOption({
         title: {
           top: "1%",
           left: "1%",
@@ -137,7 +123,16 @@ export default {
           trigger: "axis"
         },
         legend: {
-          data: ["UI缺陷", "功能缺陷", "数据错误", "反馈意见","异常","任务","需求","其他"]
+          data: [
+            "UI缺陷",
+            "功能缺陷",
+            "数据错误",
+            "反馈意见",
+            "异常",
+            "任务",
+            "需求",
+            "其他"
+          ]
         },
         grid: {
           left: "3%",
@@ -160,20 +155,7 @@ export default {
         xAxis: {
           type: "category",
           boundaryGap: false,
-          data: [
-            "一月",
-            "二月",
-            "三月",
-            "四月",
-            "五月",
-            "六月",
-            "七月",
-            "八月",
-            "九月",
-            "十月",
-            "十一月",
-            "十二月"
-          ]
+          data: this.monthList
         },
         yAxis: {
           type: "value"
@@ -181,56 +163,54 @@ export default {
         series: [
           {
             name: "UI缺陷",
-            type: "line",
-            data: [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            type: "bar",
+            data: this.type.UIBugList
           },
           {
             name: "功能缺陷",
-            type: "line",
-            data: [0, 0, 3, 1, 0, 0, 0, 5, 0, 0, 0, 0]
+            type: "bar",
+            data: this.type.functionBugList
           },
           {
             name: "数据错误",
-            type: "line",
-            data: [0, 1, 2, 0, 3, 0, 2, 0, 0, 4, 0, 0]
+            type: "bar",
+            data: this.type.dataMistakeList
           },
           {
             name: "反馈意见",
-            type: "line",
-            data: [0, 0, 5, 0, 0, 5, 0, 0, 6, 0, 4, 0]
+            type: "bar",
+            data: this.type.feedbackList
           },
-           {
+          {
             name: "异常",
-            type: "line",
-            data: [0, 1, 2, 0, 3, 0, 2, 2, 0, 4, 4, 0]
+            type: "bar",
+            data: this.type.exceptionList
           },
-           {
+          {
             name: "任务",
-            type: "line",
-            data: [0, 1, 2, 0, 4, 0, 2, 0, 0, 4, 7, 0]
+            type: "bar",
+            data: this.type.missionList
           },
           {
             name: "需求",
-            type: "line",
-            data: [0, 1, 2, 0, 4, 0, 2, 0, 0, 4, 7, 0]
+            type: "bar",
+            data: this.type.demandList
           },
           {
             name: "其他",
-            type: "line",
-            data: [0, 1, 2, 0, 4, 0, 2, 0, 0, 4, 7, 0]
-          },
+            type: "bar",
+            data: this.type.otherList
+          }
         ]
-      };
-      // 绘制图表
-      echart_etl_stat.setOption(echart_etl_stat_option);
+      });
     },
-     init_priority_echarts() {
+    init_priority_echarts() {
       // 基于准备好的dom，初始化echarts实例
       var echart_etl_stat = echarts.init(
         document.getElementById("problemPriorityChart")
       );
       // 设置option
-      var echart_etl_stat_option = {
+      echart_etl_stat.setOption({
         title: {
           top: "1%",
           left: "1%",
@@ -267,20 +247,7 @@ export default {
         xAxis: {
           type: "category",
           boundaryGap: false,
-          data: [
-            "一月",
-            "二月",
-            "三月",
-            "四月",
-            "五月",
-            "六月",
-            "七月",
-            "八月",
-            "九月",
-            "十月",
-            "十一月",
-            "十二月"
-          ]
+          data: this.monthList
         },
         yAxis: {
           type: "value"
@@ -288,35 +255,115 @@ export default {
         series: [
           {
             name: "致命",
-            type: "line",
-            data: [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            type: "bar",
+            data: this.priority.fatalList
           },
           {
             name: "严重",
-            type: "line",
-            data: [0, 0, 3, 1, 0, 0, 0, 5, 0, 0, 0, 0]
+            type: "bar",
+            data: this.priority.seriousList
           },
           {
             name: "一般",
-            type: "line",
-            data: [0, 1, 2, 0, 3, 0, 2, 0, 0, 4, 0, 0]
+            type: "bar",
+            data: this.priority.generalList
           },
           {
             name: "轻微",
-            type: "line",
-            data: [0, 0, 5, 0, 0, 5, 0, 0, 6, 0, 4, 0]
-          },
+            type: "bar",
+            data: this.priority.slightList
+          }
         ]
-      };
-      // 绘制图表
-      echart_etl_stat.setOption(echart_etl_stat_option);
+      });
     }
   },
   mounted: function() {
-    this.init_status_echarts();
-    this.init_type_echarts();
-    this.init_priority_echarts();
+    api
+      .getStatusDataList()
+      .then(res => {
+        this.status.createList = res.data["新建"];
+        this.status.handlingList = res.data["处理中"];
+        this.status.solvedList = res.data["已解决"];
+        this.status.refuseList = res.data["已拒绝"];
+        this.status.checkList = res.data["已验收"];
+        this.status.delayList = res.data["延期"];
+        this.init_status_echarts();
+      })
+      .catch(error => {
+        this.$Message.error(error.message);
+      });
 
+    api
+      .getTypeDataList()
+      .then(res => {
+        this.type.functionBugList = res.data["功能缺陷"];
+        this.type.UIBugList = res.data["UI缺陷"];
+        this.type.dataMistakeList = res.data["数据错误"];
+        this.type.feedbackList = res.data["反馈意见"];
+        this.type.exceptionList = res.data["异常"];
+        this.type.missionList = res.data["任务"];
+        this.type.demandList = res.data["需求"];
+        this.type.otherList = res.data["其他"];
+        this.init_type_echarts();
+      })
+      .catch(error => {
+        this.$Message.error(error.message);
+      });
+
+    api
+      .getPriorityDataList()
+      .then(res => {
+        this.priority.fatalList = res.data["致命"];
+        this.priority.seriousList = res.data["严重"];
+        this.priority.generalList = res.data["一般"];
+        this.priority.slightList = res.data["轻微"];
+        this.init_priority_echarts();
+      })
+      .catch(error => {
+        this.$Message.error(error.message);
+      });
+  },
+  data() {
+    return {
+      monthList: [
+        "一月",
+        "二月",
+        "三月",
+        "四月",
+        "五月",
+        "六月",
+        "七月",
+        "八月",
+        "九月",
+        "十月",
+        "十一月",
+        "十二月"
+      ],
+      status: {
+        createList: [],
+        handlingList: [],
+        solvedList: [],
+        refuseList: [],
+        checkList: [],
+        delayList: []
+      },
+      type: {
+        functionBugList: [],
+        UIBugList: [],
+        dataMistakeList: [],
+        feedbackList: [],
+        exceptionList: [],
+        missionList: [],
+        demandList: [],
+        otherList: []
+      },
+      priority: {
+        fatalList: [],
+        seriousList: [],
+        generalList: [],
+        slightList: []
+      }
+    };
   }
 };
 </script>
